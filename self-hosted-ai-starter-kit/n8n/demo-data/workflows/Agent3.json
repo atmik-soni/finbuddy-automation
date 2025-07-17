@@ -1,0 +1,74 @@
+{
+  "name": "FinSME Content Generator",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "finsme-content",
+        "httpMethod": "POST",
+        "responseMode": "onReceived"
+      },
+      "id": "WebhookTrigger",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [100, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "const module = $json[\"module\"] || \"Budget Planner\";\nconst prompt = `You are a financial literacy expert and AI content assistant. Help small business owners (SMEs) in India improve their budgeting, funding access, and long-term financial planning.\n\nFor the toolkit 'FinSME', create user-friendly, multilingual content for the module: ${module}.\n\nWrite:\n- A short title\n- A 2-line intro for users with low financial knowledge\n- 3–5 bullet points\n- A user story (2–4 lines)\n- A motivational message\n\nKeep tone friendly, easy, and culturally relevant. Translate-friendly.`;\n\nreturn [{ json: { prompt } }];"
+      },
+      "id": "PreparePrompt",
+      "name": "Prepare Prompt",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [300, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:11434/api/generate",
+        "method": "POST",
+        "responseFormat": "json",
+        "jsonParameters": true,
+        "body": {
+          "model": "mistral",
+          "prompt": "={{$json[\"prompt\"]}}",
+          "stream": false
+        }
+      },
+      "id": "SendToMistral",
+      "name": "Call Mistral (Ollama)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [500, 300]
+    },
+    {
+      "parameters": {
+        "fields": {
+          "output": "={{ $json.response }}"
+        },
+        "options": {
+          "dotNotation": true
+        }
+      },
+      "id": "ReturnResponse",
+      "name": "Return Output",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [700, 300]
+    }
+  ],
+  "connections": {
+    "WebhookTrigger": {
+      "main": [[{ "node": "PreparePrompt", "type": "main", "index": 0 }]]
+    },
+    "PreparePrompt": {
+      "main": [[{ "node": "SendToMistral", "type": "main", "index": 0 }]]
+    },
+    "SendToMistral": {
+      "main": [[{ "node": "ReturnResponse", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "version": 1
+}
