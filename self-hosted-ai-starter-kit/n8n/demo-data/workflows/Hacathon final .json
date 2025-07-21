@@ -32,7 +32,7 @@
     },
     {
       "parameters": {
-        "functionCode": "const sessionId = $json.sessionId || \"default-session\";\nconst module = $json[\"module\"] || \"Budget Planner\";\nconst prompt = `Continue the conversation based on previous messages. If this is a new session, You are a financial literacy expert and AI content assistant. Help small business owners (SMEs) in India improve their budgeting, funding access, and long-term financial planning.\n\nFor the toolkit 'FinSME', create user-friendly, multilingual content for the module: ${module}.\n\nWrite:\n- A short title\n- A 2-line intro for users with low financial knowledge\n- 3–5 bullet points\n- A user story (2–4 lines)\n- A motivational message\n\nKeep tone friendly, easy, and culturally relevant. Translate-friendly.`;\n\nreturn [{ json: { chatInput: prompt , sessionId} }];"
+        "functionCode": "const sessionId = $json.sessionId || \"default-session\";\nconst module = $json[\"module\"] || \"Budget Planner\";\nconst prompt = ` You are a friendly financial advisor helping small business owners across India understand which government loan schemes they may be eligible for. Please explain everything in simple, clear, and polite language. If the user speaks a regional Indian language (like Hindi, Marathi, Tamil, Bengali, etc.), respond in that language.\n\nThe business owner has shared the following details:\n\n- Business Type: Grocery Store\n- Annual Income: ₹5,00,000\n- Years in Business: 2\n- Sector: Retail\n- Collateral: No\n\nBased on this profile, suggest the 2 or 3 most suitable government loan schemes — such as PMMY (Pradhan Mantri Mudra Yojana), Stand-Up India, or CGTMSE.\n\nFor each scheme, explain:\n- Why this scheme is suitable for the business\n- The loan amount range\n- Who is eligible\n- How to apply in very simple terms\n\nPlease avoid technical jargon. Your response should be clear enough for someone who has never applied for a loan before.\n\n`;\n\nreturn [{ json: { chatInput: prompt , sessionId} }];"
       },
       "id": "bb68c04c-5f1d-437f-b90e-421a183ceb35",
       "name": "Prepare Prompt",
@@ -164,6 +164,81 @@
           "name": "Postgres account"
         }
       }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        432,
+        -368
+      ],
+      "id": "2a4cf4b3-255f-47c7-8675-69ec5125407c",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        496,
+        -128
+      ],
+      "id": "af5aff65-7361-4c0c-b24f-edffeef279be",
+      "name": "Postgres Chat Memory1",
+      "credentials": {
+        "postgres": {
+          "id": "qWDmZLGBKkw41A18",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "options": {}
+      },
+      "id": "b5dfb055-d38f-4583-9da7-68b94ae877ec",
+      "name": "Respond to Chat1",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        896,
+        -208
+      ]
+    },
+    {
+      "parameters": {
+        "model": "llama3.2:1b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        368,
+        -128
+      ],
+      "id": "ee77c0b7-a1ff-48eb-a443-6f581694eb0e",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "xHuYe0MDGOs9IpBW",
+          "name": "Local Ollama service"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        608,
+        -112
+      ],
+      "id": "f1e9b10c-e48b-456c-9e83-e643b5ec2b34",
+      "name": "Calculator1"
     }
   ],
   "pinData": {
@@ -203,7 +278,7 @@
       "main": [
         [
           {
-            "node": "AI Agent",
+            "node": "AI Agent1",
             "type": "main",
             "index": 0
           }
@@ -282,13 +357,62 @@
           }
         ]
       ]
+    },
+    "Respond to Chat": {
+      "main": [
+        []
+      ]
+    },
+    "Postgres Chat Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Chat1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "4067c57e-f03c-42a1-bcf3-b00720452817",
+  "versionId": "759c3305-e827-463a-85bf-d548939168a4",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "558d88703fb65b2d0e44613bc35916258b0f0bf983c5d4730c00c424b77ca36a"
