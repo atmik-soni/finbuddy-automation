@@ -19,7 +19,7 @@
     },
     {
       "parameters": {
-        "functionCode": "const sessionId = $json.sessionId || \"default-session\";\nconst userMessage = $json.chatInput?.toLowerCase() || \"\";\n\nreturn [{\njson: {\nroute: userMessage.includes(\"loan\") || userMessage.includes(\"mudra\") ? \"mudra\" : \"content\",\nchatInput: userMessage,\n  sessionId\n}\n}];"
+        "functionCode": "const sessionId = $json.sessionId || \"default-session\";\nconst userMessage = $json.chatInput?.toLowerCase() || \"\";\nconst currentAgent = $json.currentAgent || \"FinSuggest\";  // default agent\n\nconst applyKeywords = [\"apply\", \"start application\", \"fill form\", \"pmmy\", \"mudra loan\", \"form\", \"bank\", \"shishu\", \"kishor\", \"tarun\", \"earn\", \"mobile number\"];\nlet newRoute = currentAgent;\n\nif (currentAgent === \"FinSuggest\" && applyKeywords.some(k => userMessage.includes(k))) {\n  newRoute = \"FinChat\";\n}\n\nreturn [{\n  json: {\n    agent: newRoute === \"FinChat\" ? \"Agent-FinChat\" : \"Agent-FinSuggest\",\n    sessionId,\n    chatInput: userMessage,\n    currentAgent: newRoute\n  }\n}];\n"
       },
       "type": "n8n-nodes-base.function",
       "typeVersion": 1,
@@ -29,46 +29,6 @@
       ],
       "id": "eefcb39d-45f7-4aa4-a7fb-bd215b1501ad",
       "name": "Decide Route"
-    },
-    {
-      "parameters": {
-        "functionCode": "const sessionId = $json.sessionId || \"default-session\";\nconst module = $json[\"module\"] || \"Budget Planner\";\nconst prompt = ` You are a friendly financial advisor helping small business owners across India understand which government loan schemes they may be eligible for. Please explain everything in simple, clear, and polite language. If the user speaks a regional Indian language (like Hindi, Marathi, Tamil, Bengali, etc.), respond in that language.\n\nThe business owner has shared the following details:\n\n- Business Type: Grocery Store\n- Annual Income: ₹5,00,000\n- Years in Business: 2\n- Sector: Retail\n- Collateral: No\n\nBased on this profile, suggest the 2 or 3 most suitable government loan schemes — such as PMMY (Pradhan Mantri Mudra Yojana), Stand-Up India, or CGTMSE.\n\nFor each scheme, explain:\n- Why this scheme is suitable for the business\n- The loan amount range\n- Who is eligible\n- How to apply in very simple terms\n\nPlease avoid technical jargon. Your response should be clear enough for someone who has never applied for a loan before.\n\n`;\n\nreturn [{ json: { chatInput: prompt , sessionId} }];"
-      },
-      "id": "bb68c04c-5f1d-437f-b90e-421a183ceb35",
-      "name": "Prepare Prompt",
-      "type": "n8n-nodes-base.function",
-      "typeVersion": 1,
-      "position": [
-        80,
-        0
-      ]
-    },
-    {
-      "parameters": {
-        "functionCode": "const sessionId = $json.sessionId || \"default-session\";\nconst module = $json[\"module\"] || \"Budget Planner\";\nconst prompt = `Continue the conversation based on previous messages. If this is a new session, You are FinBuddy, an AI assistant built to help small-town and rural users in India apply for PMMY (Pradhan Mantri Mudra Yojana) loans.\n\nThe user may speak in English, Hindi, Gujarati or Marathi. Detect the language and respond in the same language.\n\nStep 1: Understand the user's background\nAsk simple and polite questions to gather these details:\n- Name\n- Village/town, district, and state\n- Type of business or work (e.g. tailoring, dairy, kirana shop, service, trading, welding, etc.)\n- Daily or monthly income or wages\n- Whether they already run a business or are starting one\n- Mobile number\n- Aadhaar number (optional)\n\nStep 2: Based on income and business maturity, decide the PMMY loan category:\n- Shishu (for new businesses, up to ₹50,000)\n- Kishore (for growing businesses, ₹50,001 to ₹5 lakh)\n- Tarun (for established businesses, ₹5 lakh to ₹10 lakh)\n\nExplain the benefits of their matching category in their language (Marathi, Hindi, or English).\n\nStep 3: Generate a JSON object for their application draft:\n{\n  \"name\": \"\",\n  \"location\": \"\",\n  \"business_type\": \"\",\n  \"income\": \"\",\n  \"loan_category\": \"Shishu / Kishore / Tarun\",\n  \"loan_amount_requested\": \"\",\n  \"mobile\": \"\",\n  \"aadhaar_number\": \"\"\n}\n\nOnly return the JSON and category name after all information is collected.\nKeep it friendly and local – like you're talking to a neighbor.`;\n\nreturn [{ json: { chatInput: prompt , sessionId} }];"
-      },
-      "id": "fd7b45a3-5a36-48c4-a61d-8f632da8d441",
-      "name": "Prepare Prompt1",
-      "type": "n8n-nodes-base.function",
-      "typeVersion": 1,
-      "position": [
-        48,
-        288
-      ],
-      "disabled": true
-    },
-    {
-      "parameters": {
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 2.1,
-      "position": [
-        528,
-        32
-      ],
-      "id": "51c1679a-9fe8-4921-9871-ae698b4b154a",
-      "name": "AI Agent"
     },
     {
       "parameters": {
@@ -126,8 +86,8 @@
           "conditions": [
             {
               "id": "4906c2c6-cf2c-4f22-83f0-07451d635ef6",
-              "leftValue": "={{ $json.route }}",
-              "rightValue": "mudra",
+              "leftValue": "={{ $json.agent }}",
+              "rightValue": "Agent-FinSuggest",
               "operator": {
                 "type": "string",
                 "operation": "equals",
@@ -166,19 +126,6 @@
       }
     },
     {
-      "parameters": {
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 2.1,
-      "position": [
-        432,
-        -368
-      ],
-      "id": "2a4cf4b3-255f-47c7-8675-69ec5125407c",
-      "name": "AI Agent1"
-    },
-    {
       "parameters": {},
       "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
       "typeVersion": 1.3,
@@ -210,26 +157,6 @@
       ]
     },
     {
-      "parameters": {
-        "model": "llama3.2:1b",
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
-      "typeVersion": 1,
-      "position": [
-        368,
-        -128
-      ],
-      "id": "ee77c0b7-a1ff-48eb-a443-6f581694eb0e",
-      "name": "Ollama Chat Model",
-      "credentials": {
-        "ollamaApi": {
-          "id": "xHuYe0MDGOs9IpBW",
-          "name": "Local Ollama service"
-        }
-      }
-    },
-    {
       "parameters": {},
       "type": "@n8n/n8n-nodes-langchain.toolCalculator",
       "typeVersion": 1,
@@ -239,10 +166,82 @@
       ],
       "id": "f1e9b10c-e48b-456c-9e83-e643b5ec2b34",
       "name": "Calculator1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        432,
+        -368
+      ],
+      "id": "2a4cf4b3-255f-47c7-8675-69ec5125407c",
+      "name": "Agent-FinSuggest"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        416,
+        128
+      ],
+      "id": "51c1679a-9fe8-4921-9871-ae698b4b154a",
+      "name": "Agent-FinApply"
+    },
+    {
+      "parameters": {
+        "functionCode": "const sessionId = $json.sessionId || \"default-session\";\nconst module = $json[\"module\"] || \"Budget Planner\";\nconst prompt = ` You are a friendly financial advisor helping small business owners in India.\n\nUser Profile:\n{{user_profile}}\n\nPlease suggest 2 or 3 government loan schemes that are most suitable for this user (e.g., PMMY, CGTMSE, Stand-Up India).\n\nFor each scheme, explain in simple language:\n- What the scheme is\n- Why it matches the user's needs\n- Typical loan amount range\n- How to apply (in 2–3 easy steps)\n\nKeep the tone short, friendly, non-technical, and easy to translate into Indian languages. If the user has asked something earlier, continue the conversation naturally.\n`;\n\nreturn [{ json: { chatInput: prompt , sessionId} }];"
+      },
+      "id": "bb68c04c-5f1d-437f-b90e-421a183ceb35",
+      "name": "Scheme Suggestion",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -128,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const sessionId = $json.sessionId || \"default-session\";\nconst module = $json[\"module\"] || \"Budget Planner\";\nconst prompt = `Continue the conversation based on previous messages.You are a digital assistant helping small business owners apply for a PMMY (Pradhan Mantri Mudra Yojana) microloan.\\n\\nContinue from the previous conversation if available. Start a step-by-step interaction to collect these details one by one:\\n1. Full Name\\n2. Gender\\n3. Age\\n4. Aadhar Number\\n5. Business Name\\n6. Business Type and Description\\n7. Start Date of Business\\n8. Loan Amount Needed\\n9. Purpose of the Loan\\n10. Preferred Bank Name and Branch\\n11. Existing Liabilities (if any)\\n\\nOnce complete, output all values in friendly chat format. Keep tone simple and support Indian regional language preference.`;\n\nreturn [{ json: { chatInput: prompt , sessionId} }];"
+      },
+      "id": "fd7b45a3-5a36-48c4-a61d-8f632da8d441",
+      "name": "LoanApplier",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -112,
+        304
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        304,
+        -160
+      ],
+      "id": "8dd33370-48b7-4e28-ba07-ded9311d3687",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Syv1y5XtNrNWKTA5",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
     }
   ],
   "pinData": {
-    "Prepare Prompt1": [
+    "LoanApplier": [
       {
         "json": {
           "chatInput": "Continue the conversation based on previous messages. If this is a new session, You are FinBuddy, an AI assistant built to help small-town and rural users in India apply for PMMY (Pradhan Mantri Mudra Yojana) loans.\n\nThe user may speak in English, Hindi, Gujarati or Marathi. Detect the language and respond in the same language.\n\nStep 1: Understand the user's background\nAsk simple and polite questions to gather these details:\n- Name\n- Village/town, district, and state\n- Type of business or work (e.g. tailoring, dairy, kirana shop, service, trading, welding, etc.)\n- Daily or monthly income or wages\n- Whether they already run a business or are starting one\n- Mobile number\n- Aadhaar number (optional)\n\nStep 2: Based on income and business maturity, decide the PMMY loan category:\n- Shishu (for new businesses, up to ₹50,000)\n- Kishore (for growing businesses, ₹50,001 to ₹5 lakh)\n- Tarun (for established businesses, ₹5 lakh to ₹10 lakh)\n\nExplain the benefits of their matching category in their language (Marathi, Hindi, or English).\n\nStep 3: Generate a JSON object for their application draft:\n{\n  \"name\": \"\",\n  \"location\": \"\",\n  \"business_type\": \"\",\n  \"income\": \"\",\n  \"loan_category\": \"Shishu / Kishore / Tarun\",\n  \"loan_amount_requested\": \"\",\n  \"mobile\": \"\",\n  \"aadhaar_number\": \"\"\n}\n\nOnly return the JSON and category name after all information is collected.\nKeep it friendly and local – like you're talking to a neighbor.",
@@ -274,44 +273,11 @@
         ]
       ]
     },
-    "Prepare Prompt": {
-      "main": [
-        [
-          {
-            "node": "AI Agent1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Prepare Prompt1": {
-      "main": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "AI Agent": {
-      "main": [
-        [
-          {
-            "node": "Respond to Chat",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Google Gemini Chat Model": {
       "ai_languageModel": [
         [
           {
-            "node": "AI Agent",
+            "node": "Agent-FinApply",
             "type": "ai_languageModel",
             "index": 0
           }
@@ -322,7 +288,7 @@
       "ai_tool": [
         [
           {
-            "node": "AI Agent",
+            "node": "Agent-FinApply",
             "type": "ai_tool",
             "index": 0
           }
@@ -333,14 +299,14 @@
       "main": [
         [
           {
-            "node": "Prepare Prompt1",
+            "node": "Scheme Suggestion",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "Prepare Prompt",
+            "node": "LoanApplier",
             "type": "main",
             "index": 0
           }
@@ -351,7 +317,7 @@
       "ai_memory": [
         [
           {
-            "node": "AI Agent",
+            "node": "Agent-FinApply",
             "type": "ai_memory",
             "index": 0
           }
@@ -367,14 +333,25 @@
       "ai_memory": [
         [
           {
-            "node": "AI Agent1",
+            "node": "Agent-FinSuggest",
             "type": "ai_memory",
             "index": 0
           }
         ]
       ]
     },
-    "AI Agent1": {
+    "Calculator1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agent-FinSuggest",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent-FinSuggest": {
       "main": [
         [
           {
@@ -385,23 +362,50 @@
         ]
       ]
     },
-    "Ollama Chat Model": {
-      "ai_languageModel": [
+    "Agent-FinApply": {
+      "main": [
         [
           {
-            "node": "AI Agent1",
-            "type": "ai_languageModel",
+            "node": "Respond to Chat",
+            "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Calculator1": {
-      "ai_tool": [
+    "Scheme Suggestion": {
+      "main": [
         [
           {
-            "node": "AI Agent1",
-            "type": "ai_tool",
+            "node": "Agent-FinSuggest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LoanApplier": {
+      "main": [
+        [
+          {
+            "node": "Agent-FinApply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Chat1": {
+      "main": [
+        []
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agent-FinSuggest",
+            "type": "ai_languageModel",
             "index": 0
           }
         ]
@@ -412,7 +416,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "759c3305-e827-463a-85bf-d548939168a4",
+  "versionId": "badb2e23-b6a2-407d-9d0c-ba18f6398c03",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "558d88703fb65b2d0e44613bc35916258b0f0bf983c5d4730c00c424b77ca36a"
