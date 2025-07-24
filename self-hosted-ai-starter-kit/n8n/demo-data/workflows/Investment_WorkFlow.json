@@ -1,0 +1,188 @@
+{
+  "name": "investment",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "Hi. I am FinBuddy ready to assist you",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1424,
+        432
+      ],
+      "id": "9a5efbf1-7392-4a4c-aef1-ad975db82be2",
+      "name": "When chat message received",
+      "webhookId": "e7c0f7a6-8931-48b6-a462-0f0bd05e95ee"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        64,
+        240
+      ],
+      "id": "cacd68ab-9c63-4d4a-9d7b-cc86cc6169f8",
+      "name": "Postgres Chat Memory1",
+      "credentials": {
+        "postgres": {
+          "id": "UrerWFv2d48ueONe",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "options": {}
+      },
+      "id": "4331a1b0-850b-4be5-b981-19846a068ee2",
+      "name": "Respond to Chat1",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        464,
+        160
+      ]
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        176,
+        256
+      ],
+      "id": "b0c9f888-19df-4e62-996b-7d9b7678d4b9",
+      "name": "Calculator1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "3be80a9d-d250-41f2-986b-7a2722f5a708",
+      "name": "Agent-FinSuggest"
+    },
+    {
+      "parameters": {
+        "functionCode": "const sessionId = $json.sessionId || \"default-session\";\nconst module = $json[\"module\"] || \"Saving & Investment Assistant\";\nconst userMessage = $json.chatInput || $json.input || \"\";\n\n// Dynamic prompt focusing on minimal questions and personalized investment tips\nconst prompt = `You are a friendly and intelligent saving and investment assistant helping users across India.\n\nUser's current message: \"${userMessage}\"\n\nYour role:\nCollect only the essential information needed to suggest saving and investment tips:\n1. Name\n2. Monthly or annual income\n3. Goal for saving (e.g., retirement, education, buying a home, emergency fund)\n\nConversation Guidelines:\n- Do NOT ask for any other information\n- Avoid repeating questions the user has already answered\n- If information is missing, ask for it clearly and politely\n- Once all 3 pieces of info are collected, suggest 2-4 personalized investment tips based on the user's income and saving goal\n\nResponse Strategy:\n- If greeting or no info yet: Welcome user and ask for their name\n- If name provided but income missing: Ask for income\n- If name and income provided but goal missing: Ask for saving goal\n- Once all info collected: Provide 2-4 relevant investment suggestions with brief explanations and benefits\n\nInvestment Suggestions should consider:\n- Suitable government saving schemes (like PPF, NSC, Sukanya Samriddhi)\n- Popular private investment options (mutual funds, fixed deposits, NPS)\n- Align suggestions with user's saving goal and income level\n- Include key benefits and simple next steps to invest\n\nRemember:\n- Keep responses conversational, warm, and helpful\n- Do NOT repeat information already given in this session`;\n\nreturn [{ json: { chatInput: prompt, sessionId } }];\n"
+      },
+      "id": "2bbd76fa-9f7a-406c-8aae-918114faf3e6",
+      "name": "Scheme Suggestion",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -560,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -128,
+        208
+      ],
+      "id": "03fd484c-36b5-489c-b87a-15f8ce3020e5",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "EFuIZHhUJaPsvT3o",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Scheme Suggestion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "Agent-FinSuggest",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agent-FinSuggest",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent-FinSuggest": {
+      "main": [
+        [
+          {
+            "node": "Respond to Chat1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scheme Suggestion": {
+      "main": [
+        [
+          {
+            "node": "Agent-FinSuggest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agent-FinSuggest",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a8515ba8-da14-42dc-9228-48f496cecc07",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "558d88703fb65b2d0e44613bc35916258b0f0bf983c5d4730c00c424b77ca36a"
+  },
+  "id": "8pzPGpAMDUczw7F0",
+  "tags": []
+}
