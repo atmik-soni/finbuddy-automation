@@ -1,0 +1,188 @@
+{
+  "name": "Insurance",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "Hi. I am FinBuddy ready to assist you",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1424,
+        432
+      ],
+      "id": "59efe4fc-2166-42e5-b9d9-4954b03f387b",
+      "name": "When chat message received",
+      "webhookId": "85a11bc5-e934-4a78-8ed2-d54b8cdcd114"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        64,
+        240
+      ],
+      "id": "43a6f0bb-a4e7-4770-bd7c-0fb700eabf42",
+      "name": "Postgres Chat Memory1",
+      "credentials": {
+        "postgres": {
+          "id": "gLvOVjQ2rnwgaAyt",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "options": {}
+      },
+      "id": "1bf87f1a-9865-4177-bcad-bf198eb0cd21",
+      "name": "Respond to Chat1",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        464,
+        160
+      ]
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        176,
+        256
+      ],
+      "id": "b9d213b5-7442-4bcf-914a-3e3d866f6c8b",
+      "name": "Calculator1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "7b5231e1-de76-4391-b1b0-da6ee1580555",
+      "name": "Agent-FinSuggest"
+    },
+    {
+      "parameters": {
+        "functionCode": "const sessionId = $json.sessionId || \"default-session\";\nconst module = $json[\"module\"] || \"Budget Planner\";\nconst prompt = ` You are a friendly financial advisor helping small business owners in India.\n\nUser Profile:\n{{user_profile}}\n\nPlease suggest 2 or 3 government loan schemes that are most suitable for this user (e.g., PMMY, CGTMSE, Stand-Up India).\n\nFor each scheme, explain in simple language:\n- What the scheme is\n- Why it matches the user's needs\n- Typical loan amount range\n- How to apply (in 2–3 easy steps)\n\nKeep the tone short, friendly, non-technical, and easy to translate into Indian languages. If the user has asked something earlier, continue the conversation naturally.\n`;\n\nreturn [{ json: { chatInput: prompt , sessionId} }];"
+      },
+      "id": "e73ef149-cf7c-456d-a282-dcff687a5345",
+      "name": "Scheme Suggestion",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -560,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -128,
+        208
+      ],
+      "id": "ba8a99bd-5f48-4fcb-9960-1f4309d8874c",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "AnrUf8FADBeQ3kBs",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Scheme Suggestion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "Agent-FinSuggest",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agent-FinSuggest",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent-FinSuggest": {
+      "main": [
+        [
+          {
+            "node": "Respond to Chat1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scheme Suggestion": {
+      "main": [
+        [
+          {
+            "node": "Agent-FinSuggest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agent-FinSuggest",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ed86574b-1495-41dc-907f-3762dbdde19e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "558d88703fb65b2d0e44613bc35916258b0f0bf983c5d4730c00c424b77ca36a"
+  },
+  "id": "eU1Qjo2Uxcf2u2RG",
+  "tags": []
+}
