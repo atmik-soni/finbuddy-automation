@@ -4,7 +4,7 @@
     {
       "parameters": {
         "public": true,
-        "initialMessages": "Hi. I am FinBuddy ready to assist you",
+        "initialMessages": "I'm here to help small businesses like yours with insurance solutions tailored to your needs. Whether you want to learn about coverage options, get a quick quote, or manage your policy, I’ve got you covered. How can I assist you today?",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.chatTrigger",
@@ -74,7 +74,7 @@
     },
     {
       "parameters": {
-        "functionCode": "const sessionId = $json.sessionId || \"default-session\";\nconst module = $json[\"module\"] || \"Budget Planner\";\nconst prompt = ` You are a friendly financial advisor helping small business owners in India.\n\nUser Profile:\n{{user_profile}}\n\nPlease suggest 2 or 3 government loan schemes that are most suitable for this user (e.g., PMMY, CGTMSE, Stand-Up India).\n\nFor each scheme, explain in simple language:\n- What the scheme is\n- Why it matches the user's needs\n- Typical loan amount range\n- How to apply (in 2–3 easy steps)\n\nKeep the tone short, friendly, non-technical, and easy to translate into Indian languages. If the user has asked something earlier, continue the conversation naturally.\n`;\n\nreturn [{ json: { chatInput: prompt , sessionId} }];"
+        "functionCode": "const sessionId = $json.sessionId || \"default-session\";\nconst module = $json[\"module\"] || \"Insurance Assistant\";\nconst userMessage = $json.chatInput || $json.input || \"\";\n\n// Dynamic prompt that considers user input and conversation flow\nconst prompt = `You are an intelligent and friendly insurance assistant helping small business owners across India.\n\nUser's current message: \"${userMessage}\"\n\nYour role:\nSuggest the most suitable insurance schemes (government + private) based on the user's business type, scale, location, employee size, and insurance needs.\n\nMultilingual support:\nDetect and respond in the user's preferred language automatically — Hindi, Marathi, Gujarati, or English.\n\nConversation Guidelines:\n- You have access to chat memory, so NEVER repeat questions the user has already answered\n- Progress the conversation naturally based on what information you already have\n- Only ask for missing information that's actually needed\n\nInformation Collection (ask only what's missing):\n1. Name\n2. Mobile number  \n3. Type of business (e.g., kirana store, workshop, tuition center)\n4. Number of employees\n5. Business location (state/city)\n6. Type of insurance needed (health, fire, theft, employee welfare, cyber risk)\n7. Annual turnover or budget range (optional)\n8. Preference for government schemes only or open to private too\n\nResponse Strategy:\n- If user is greeting/starting: Welcome them and ask for basic business info\n- If user provided some info: Acknowledge it and ask for the next missing piece\n- If you have enough info: Suggest 2-4 relevant insurance schemes\n- If user asks about specific schemes: Provide detailed information\n- If user wants application help: Guide them through the process\n\nFor scheme suggestions, include:\n- Scheme Name & Type (Govt/Private)\n- Purpose & What it Covers  \n- Who is Eligible\n- Estimated Premium (if available)\n- How to Apply (with brief process)\n\nKey Insurance Options to Consider:\nGovernment: PMJAY, PMSBY, ESI, PMFBY, CGTMSE, NIRVIK\nPrivate: HDFC Ergo, ICICI Lombard, Tata AIG, Bajaj Allianz\n\nRemember: Keep responses conversational and avoid repeating information already discussed in this session.`;\n\nreturn [{ json: { chatInput: prompt, sessionId } }];"
       },
       "id": "e73ef149-cf7c-456d-a282-dcff687a5345",
       "name": "Scheme Suggestion",
@@ -131,13 +131,7 @@
     },
     "Calculator1": {
       "ai_tool": [
-        [
-          {
-            "node": "Agent-FinSuggest",
-            "type": "ai_tool",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "Agent-FinSuggest": {
@@ -174,11 +168,11 @@
       ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "ed86574b-1495-41dc-907f-3762dbdde19e",
+  "versionId": "77f6bb9e-ff47-4a91-9c79-467c64ff9caf",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "558d88703fb65b2d0e44613bc35916258b0f0bf983c5d4730c00c424b77ca36a"

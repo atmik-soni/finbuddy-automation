@@ -1,0 +1,503 @@
+{
+  "name": "PMMY-Loan-Chat",
+  "nodes": [
+    {
+      "parameters": {
+        "respondWith": "text",
+        "options": {}
+      },
+      "id": "cd0a83c6-7a40-43cb-84c7-fb0f7e6f4552",
+      "name": "Respond to Chat",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        -816,
+        -208
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -1504,
+        112
+      ],
+      "id": "f7224b01-2dd6-4921-9efa-d2ac92e4976e",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Syv1y5XtNrNWKTA5",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        -1040,
+        112
+      ],
+      "id": "7ad466dd-b648-4f7d-a208-3ae5c368c728",
+      "name": "Calculator"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        -1344,
+        96
+      ],
+      "id": "814cf3ee-a6bc-497a-8dbf-59f645784cae",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "qWDmZLGBKkw41A18",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        -1440,
+        -208
+      ],
+      "id": "398aff2f-d499-424a-b45f-d9dbb14ff663",
+      "name": "Agent-FinApply"
+    },
+    {
+      "parameters": {
+        "functionCode": "const sessionId = $json.sessionId || \"default-session\";\nconst module = $json[\"module\"] || \"Microloan Assistant\";\nconst userMessage = $json.chatInput || $json.input || \"\";\n\n// Dynamic prompt that considers user input and conversation flow\nconst prompt = `You are a smart and friendly loan assistant helping small business owners across India access microloan schemes from the government and private sector.\n\nUser's current message: \"${userMessage}\"\n\nYour role:\nSuggest the most suitable microloan schemes (like PMMY, Stand-Up India, CGTMSE, or private NBFC options) based on the user's business type, location, maturity, income, and loan needs.\n\nMultilingual support:\nDetect and respond in the user's preferred language automatically — Hindi, Marathi, Gujarati, or English.\n\nConversation Guidelines:\n- You have access to chat memory, so NEVER repeat questions the user has already answered.\n- Progress the conversation naturally based on what information you already have.\n- Only ask for the missing information that's actually required for personalized suggestions.\n\nInformation Collection (ask only what's missing):\n1. Full Name\n2. Mobile number\n3. Type of business (e.g., kirana store, workshop, dairy, tailoring, mobile repair)\n4. Location (village/town, district, and state)\n5. Monthly or Annual income\n6. Loan amount needed\n7. Are they already running the business, or starting it?\n8. Preference for government schemes only or also open to private NBFC/microfinance lenders?\n\nResponse Strategy:\n- If user is greeting/starting: Welcome them and ask for basic business info.\n- If user has already provided some details: Acknowledge and ask for the next missing piece.\n- If you have enough information: Suggest 2–3 suitable loan schemes (e.g., PMMY, CGTMSE, private NBFC).\n- If user asks for a specific scheme: Provide clear and simple details.\n- If user wants to apply: Begin step-by-step collection of application data and offer a summary in JSON format.\n\nFor each suggested scheme, include:\n- Scheme Name & Type (Govt/Private)\n- Purpose & Use Case\n- Who can apply\n- Loan Range\n- Collateral Needed or Not\n- How to Apply (short steps)\n\nLoan Schemes to Consider:\nGovernment: PMMY (Mudra), Stand-Up India, CGTMSE\nPrivate: HDFC Bank Microloans, Ujjivan Small Finance Bank, CreditAccess Grameen, Bajaj Finserv Micro Business Loan\n\nImportant:\n- Keep the tone polite, conversational, and localized.\n- Avoid repeating what the user has already told you.\n- Make the experience smooth and comfortable — like helping a neighbor, not like a formal bank agent.`;\n\nreturn [{ json: { chatInput: prompt, sessionId } }];\n"
+      },
+      "id": "57351b25-436f-43e8-a2c5-7d94d1fec0e6",
+      "name": "LoanApplier",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -1696,
+        -224
+      ]
+    },
+    {
+      "parameters": {
+        "public": true,
+        "mode": "webhook",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -2544,
+        -432
+      ],
+      "id": "ddae310c-a8c8-4b43-a181-6064fe6c8761",
+      "name": "FinBuddy",
+      "webhookId": "87278fb8-a302-4f97-834e-fc33ab163c33"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "02c7eae1-db1c-4211-a1ab-f9868e7c6a76",
+              "leftValue": "={{ $json.files }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "array",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -2096,
+        -432
+      ],
+      "id": "7a705abd-2adb-4a47-acf6-10d3abb79938",
+      "name": "Check for File Upload"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "qdrantCollection": {
+          "__rl": true,
+          "value": "={{ $json.sessionId }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "typeVersion": 1.3,
+      "position": [
+        -1376,
+        -816
+      ],
+      "id": "170c28d3-a6f8-4ab4-8125-c9b4e7c91f4f",
+      "name": "Qdrant Vector Store",
+      "credentials": {
+        "qdrantApi": {
+          "id": "sFfERYppMeBnFNeA",
+          "name": "Local QdrantApi database"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('FinBuddy').item.json.chatInput }} {{ $json.pageContent || '' }}",
+        "options": {
+          "passthroughBinaryImages": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -832,
+        -880
+      ],
+      "id": "610ca5dc-3180-4a52-a19e-aa1f79fc04e7",
+      "name": "AI Agent",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('FinBuddy').item.json.chatInput }}",
+        "contextWindowLength": 50
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        -752,
+        -576
+      ],
+      "id": "8f3a1da9-10d1-45ab-b8fb-5faf3c315332",
+      "name": "Postgres Chat Memory2",
+      "credentials": {
+        "postgres": {
+          "id": "qWDmZLGBKkw41A18",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        -400,
+        -480
+      ],
+      "id": "ade7b10f-3554-4773-b586-a33cdcf93986",
+      "name": "Calculator1"
+    },
+    {
+      "parameters": {
+        "model": "llama3.2:1b"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "typeVersion": 1,
+      "position": [
+        -1472,
+        -448
+      ],
+      "id": "b6ad70e0-fccb-4e9d-8690-244ca6f9fbd8",
+      "name": "Embeddings Ollama",
+      "credentials": {
+        "ollamaApi": {
+          "id": "xHuYe0MDGOs9IpBW",
+          "name": "Local Ollama service"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        -1264,
+        -384
+      ],
+      "id": "ea341f25-f41e-4916-a2c7-3fc1b2cdcbdb",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -976,
+        -672
+      ],
+      "id": "31ab7095-c3ac-459a-b229-b3087604b5d7",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Syv1y5XtNrNWKTA5",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "deleteTable",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "n8n_chat_histories",
+          "mode": "list",
+          "cachedResultName": "n8n_chat_histories"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -2272,
+        -48
+      ],
+      "id": "122e5da8-cc82-4b3f-becd-d981a5b779e3",
+      "name": "Delete table or rows",
+      "credentials": {
+        "postgres": {
+          "id": "qWDmZLGBKkw41A18",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "path": "delete",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -2528,
+        -48
+      ],
+      "id": "31af1de8-17ed-400d-af1b-3499304fecfe",
+      "name": "Reset",
+      "webhookId": "0582a270-b1d3-4c17-ad82-18ff3785d23d"
+    }
+  ],
+  "pinData": {
+    "LoanApplier": [
+      {
+        "json": {
+          "chatInput": "Continue the conversation based on previous messages. If this is a new session, You are FinBuddy, an AI assistant built to help small-town and rural users in India apply for PMMY (Pradhan Mantri Mudra Yojana) loans.\n\nThe user may speak in English, Hindi, Gujarati or Marathi. Detect the language and respond in the same language.\n\nStep 1: Understand the user's background\nAsk simple and polite questions to gather these details:\n- Name\n- Village/town, district, and state\n- Type of business or work (e.g. tailoring, dairy, kirana shop, service, trading, welding, etc.)\n- Daily or monthly income or wages\n- Whether they already run a business or are starting one\n- Mobile number\n- Aadhaar number (optional)\n\nStep 2: Based on income and business maturity, decide the PMMY loan category:\n- Shishu (for new businesses, up to ₹50,000)\n- Kishore (for growing businesses, ₹50,001 to ₹5 lakh)\n- Tarun (for established businesses, ₹5 lakh to ₹10 lakh)\n\nExplain the benefits of their matching category in their language (Marathi, Hindi, or English).\n\nStep 3: Generate a JSON object for their application draft:\n{\n  \"name\": \"\",\n  \"location\": \"\",\n  \"business_type\": \"\",\n  \"income\": \"\",\n  \"loan_category\": \"Shishu / Kishore / Tarun\",\n  \"loan_amount_requested\": \"\",\n  \"mobile\": \"\",\n  \"aadhaar_number\": \"\"\n}\n\nOnly return the JSON and category name after all information is collected.\nKeep it friendly and local – like you're talking to a neighbor.",
+          "sessionId": "2f497089938d49ebb81bf5d122b57c9c"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agent-FinApply",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agent-FinApply",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Agent-FinApply",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Chat": {
+      "main": [
+        []
+      ]
+    },
+    "Agent-FinApply": {
+      "main": [
+        [
+          {
+            "node": "Respond to Chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LoanApplier": {
+      "main": [
+        [
+          {
+            "node": "Agent-FinApply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FinBuddy": {
+      "main": [
+        [
+          {
+            "node": "Check for File Upload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check for File Upload": {
+      "main": [
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "LoanApplier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qdrant Vector Store": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory2": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Ollama": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reset": {
+      "main": [
+        [
+          {
+            "node": "Delete table or rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "99c8572e-6705-475b-8a0d-470e6ff76baa",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "558d88703fb65b2d0e44613bc35916258b0f0bf983c5d4730c00c424b77ca36a"
+  },
+  "id": "Syy2Y43eK9ATdier",
+  "tags": []
+}
