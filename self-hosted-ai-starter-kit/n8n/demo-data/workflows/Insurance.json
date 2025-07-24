@@ -4,16 +4,16 @@
     {
       "parameters": {
         "public": true,
-        "initialMessages": "I'm here to help small businesses like yours with insurance solutions tailored to your needs. Whether you want to learn about coverage options, get a quick quote, or manage your policy, I’ve got you covered. How can I assist you today?",
+        "mode": "webhook",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.chatTrigger",
       "typeVersion": 1.1,
       "position": [
-        -1424,
-        432
+        -1360,
+        192
       ],
-      "id": "59efe4fc-2166-42e5-b9d9-4954b03f387b",
+      "id": "e1e567eb-80c5-4309-9cc8-9ff6e657472e",
       "name": "When chat message received",
       "webhookId": "85a11bc5-e934-4a78-8ed2-d54b8cdcd114"
     },
@@ -22,14 +22,14 @@
       "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
       "typeVersion": 1.3,
       "position": [
-        64,
-        240
+        -304,
+        336
       ],
-      "id": "43a6f0bb-a4e7-4770-bd7c-0fb700eabf42",
+      "id": "db44d9e0-f231-4deb-9613-d9c3baa57ba5",
       "name": "Postgres Chat Memory1",
       "credentials": {
         "postgres": {
-          "id": "gLvOVjQ2rnwgaAyt",
+          "id": "qWDmZLGBKkw41A18",
           "name": "Postgres account"
         }
       }
@@ -39,13 +39,13 @@
         "respondWith": "text",
         "options": {}
       },
-      "id": "1bf87f1a-9865-4177-bcad-bf198eb0cd21",
+      "id": "1bba07b0-7cfd-4a3b-a566-cfd7502629ce",
       "name": "Respond to Chat1",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        464,
-        160
+        1200,
+        400
       ]
     },
     {
@@ -53,10 +53,10 @@
       "type": "@n8n/n8n-nodes-langchain.toolCalculator",
       "typeVersion": 1,
       "position": [
-        176,
-        256
+        -80,
+        384
       ],
-      "id": "b9d213b5-7442-4bcf-914a-3e3d866f6c8b",
+      "id": "b657f56d-c30e-4d88-ae49-dc22a13c0f24",
       "name": "Calculator1"
     },
     {
@@ -66,23 +66,23 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 2.1,
       "position": [
-        0,
-        0
+        -352,
+        48
       ],
-      "id": "7b5231e1-de76-4391-b1b0-da6ee1580555",
+      "id": "e229648b-9051-4b33-8d21-3b692dd03812",
       "name": "Agent-FinSuggest"
     },
     {
       "parameters": {
-        "functionCode": "const sessionId = $json.sessionId || \"default-session\";\nconst module = $json[\"module\"] || \"Insurance Assistant\";\nconst userMessage = $json.chatInput || $json.input || \"\";\n\n// Dynamic prompt that considers user input and conversation flow\nconst prompt = `You are an intelligent and friendly insurance assistant helping small business owners across India.\n\nUser's current message: \"${userMessage}\"\n\nYour role:\nSuggest the most suitable insurance schemes (government + private) based on the user's business type, scale, location, employee size, and insurance needs.\n\nMultilingual support:\nDetect and respond in the user's preferred language automatically — Hindi, Marathi, Gujarati, or English.\n\nConversation Guidelines:\n- You have access to chat memory, so NEVER repeat questions the user has already answered\n- Progress the conversation naturally based on what information you already have\n- Only ask for missing information that's actually needed\n\nInformation Collection (ask only what's missing):\n1. Name\n2. Mobile number  \n3. Type of business (e.g., kirana store, workshop, tuition center)\n4. Number of employees\n5. Business location (state/city)\n6. Type of insurance needed (health, fire, theft, employee welfare, cyber risk)\n7. Annual turnover or budget range (optional)\n8. Preference for government schemes only or open to private too\n\nResponse Strategy:\n- If user is greeting/starting: Welcome them and ask for basic business info\n- If user provided some info: Acknowledge it and ask for the next missing piece\n- If you have enough info: Suggest 2-4 relevant insurance schemes\n- If user asks about specific schemes: Provide detailed information\n- If user wants application help: Guide them through the process\n\nFor scheme suggestions, include:\n- Scheme Name & Type (Govt/Private)\n- Purpose & What it Covers  \n- Who is Eligible\n- Estimated Premium (if available)\n- How to Apply (with brief process)\n\nKey Insurance Options to Consider:\nGovernment: PMJAY, PMSBY, ESI, PMFBY, CGTMSE, NIRVIK\nPrivate: HDFC Ergo, ICICI Lombard, Tata AIG, Bajaj Allianz\n\nRemember: Keep responses conversational and avoid repeating information already discussed in this session.`;\n\nreturn [{ json: { chatInput: prompt, sessionId } }];"
+        "functionCode": "const sessionId = $json.sessionId || \"default-session\";\nconst module = $json[\"module\"] || \"Insurance Assistant\";\nconst userMessage = $json.chatInput || $json.input || \"\";\n\n// Dynamic prompt that considers user input and conversation flow\nconst prompt = `You are an intelligent and friendly insurance assistant helping small business owners across India.\n\nUser's current message: \"${userMessage}\"\n\nYour role:\nSuggest the most suitable insurance schemes (government + private) based on the user's business type, scale, location, employee size, and insurance needs.\n\nMultilingual support:\nDetect and respond in the user's preferred language automatically — Hindi, Marathi, Gujarati, or English.\n\nConversation Guidelines:\n- You have access to chat memory, so NEVER repeat questions the user has already answered\n- Progress the conversation naturally based on what information you already have\n- Only ask for missing information that's actually needed\n\nInformation Collection (ask only what's missing):\n1. Name\n2. Mobile number  \n3. Type of business (e.g., kirana store, workshop, tuition center)\n4. Number of employees\n5. Business location (state/city)\n6. Type of insurance needed (health, fire, theft, employee welfare, cyber risk)\n7. Annual turnover or budget range (optional)\n8. Preference for government schemes only or open to private too\n\nResponse Strategy:\n- If user is greeting/starting: Welcome them and ask for basic business info\n- If user provided some info: Acknowledge it and ask for the next missing piece\n- If you have enough info: Suggest 2-4 relevant insurance schemes\n- If user asks about specific schemes: Provide detailed information\n- If user selects a government scheme: Offer to generate application PDF with pre-filled details\n- If user selects a private scheme: Offer to connect them with agent via WhatsApp\n- If user wants application help: Guide them through the process\n\nFor scheme suggestions, include:\n- Scheme Name & Type (Govt/Private)\n- Purpose & What it Covers  \n- Who is Eligible\n- Estimated Premium (if available)\n- How to Apply (with brief process)\n\nKey Insurance Options to Consider:\nGovernment: PMJAY, PMSBY, ESI, PMFBY, CGTMSE, NIRVIK\nPrivate: HDFC Ergo, ICICI Lombard, Tata AIG, Bajaj Allianz\n\nApplication Actions:\nWhen user selects a scheme, offer these next steps:\n\nFor Government Schemes:\n- Say: \"I can generate a pre-filled PDF application for [scheme name] with your details. Would you like me to prepare this for you?\"\n- If yes, respond with: \"GENERATE_PDF:[SCHEME_NAME]:[USER_DATA]\" \n- Also provide list of required documents and submission process\n\nFor Private Schemes:\n- Say: \"I can connect you with a verified insurance agent who specializes in [scheme name]. Would you like me to arrange a WhatsApp consultation?\"\n- If yes, respond with: \"CONNECT_AGENT:[SCHEME_NAME]:[USER_PHONE]:[USER_LOCATION]\"\n- Mention the agent will contact them within 24 hours\n\nRemember: Keep responses conversational and avoid repeating information already discussed in this session.`;\n\nreturn [{ json: { chatInput: prompt, sessionId } }];"
       },
-      "id": "e73ef149-cf7c-456d-a282-dcff687a5345",
+      "id": "f86851f1-e0c1-415f-91f6-f35d5e713e97",
       "name": "Scheme Suggestion",
       "type": "n8n-nodes-base.function",
       "typeVersion": 1,
       "position": [
-        -560,
-        368
+        -880,
+        224
       ]
     },
     {
@@ -92,15 +92,180 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
       "typeVersion": 1,
       "position": [
-        -128,
-        208
+        -512,
+        320
       ],
-      "id": "ba8a99bd-5f48-4fcb-9960-1f4309d8874c",
+      "id": "8ee49ec6-54e0-4087-84ec-5ad1f3a90d49",
       "name": "Google Gemini Chat Model1",
       "credentials": {
         "googlePalmApi": {
-          "id": "AnrUf8FADBeQ3kBs",
-          "name": "Google Gemini(PaLM) Api account"
+          "id": "Syv1y5XtNrNWKTA5",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "// Parse the AI response for action triggers\nconst aiResponse = $json.text || $json.output || '';\n\n// Check for PDF generation trigger\nif (aiResponse.includes('GENERATE_PDF:')) {\n  const match = aiResponse.match(/GENERATE_PDF:([^:]+):(.+)/);\n  if (match) {\n    return [\n      {\n        json: {\n          action: 'generate_pdf',\n          scheme: match[1],\n          userData: match[2],\n          originalResponse: aiResponse.replace(/GENERATE_PDF:[^\\n]+/, '')\n        }\n      }\n    ];\n  }\n}\n\n// Check for agent connection trigger\nif (aiResponse.includes('CONNECT_AGENT:')) {\n  const match = aiResponse.match(/CONNECT_AGENT:([^:]+):([^:]+):(.+)/);\n  if (match) {\n    return [\n      {\n        json: {\n          action: 'connect_agent',\n          scheme: match[1],\n          phone: match[2],\n          location: match[3],\n          originalResponse: aiResponse.replace(/CONNECT_AGENT:[^\\n]+/, '')\n        }\n      }\n    ];\n  }\n}\n\n// No action needed, just regular response\nreturn [{\n  json: {\n    action: 'regular_response',\n    response: aiResponse\n  }\n}];"
+      },
+      "id": "dcbf5685-807d-4b12-8b25-3bd115c701df",
+      "name": "Action Parser",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        304,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $json.action }}",
+        "rules": {
+          "rules": [
+            {
+              "value2": "connect_agent",
+              "output": 2
+            },
+            {
+              "value2": "generate_pdf",
+              "output": 1
+            }
+          ]
+        },
+        "fallbackOutput": 0
+      },
+      "id": "1f82be62-44b6-4367-9b0e-a1730d433fc7",
+      "name": "Route Actions",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [
+        512,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Generate PDF application form\nconst scheme = $json.scheme;\nconst userData = $json.userData || '{}';\n\n// Parse user data if it's a string\nlet parsedUserData = {};\ntry {\n  parsedUserData = typeof userData === 'string' ? JSON.parse(userData) : userData;\n} catch (e) {\n  // If parsing fails, extract from the userData string manually\n  const nameMatch = userData.match(/name[:\\s]+([^,\\n]+)/i);\n  const mobileMatch = userData.match(/mobile[:\\s]+([^,\\n]+)/i);\n  const businessMatch = userData.match(/business[:\\s]+([^,\\n]+)/i);\n  const employeesMatch = userData.match(/employees[:\\s]+([^,\\n]+)/i);\n  const locationMatch = userData.match(/location[:\\s]+([^,\\n]+)/i);\n  const turnoverMatch = userData.match(/turnover[:\\s]+([^,\\n]+)/i);\n  \n  parsedUserData = {\n    name: nameMatch ? nameMatch[1].trim() : '',\n    mobile: mobileMatch ? mobileMatch[1].trim() : '',\n    businessType: businessMatch ? businessMatch[1].trim() : '',\n    employees: employeesMatch ? employeesMatch[1].trim() : '',\n    location: locationMatch ? locationMatch[1].trim() : '',\n    turnover: turnoverMatch ? turnoverMatch[1].trim() : ''\n  };\n}\n\n// Create PDF content based on scheme\nlet pdfContent = `\n<!DOCTYPE html>\n<html>\n<head>\n    <meta charset=\"UTF-8\">\n    <style>\n        body { \n            font-family: Arial, sans-serif; \n            margin: 20px; \n            line-height: 1.6;\n        }\n        .header { \n            text-align: center; \n            margin-bottom: 30px; \n            border-bottom: 2px solid #333;\n            padding-bottom: 20px;\n        }\n        .form-group { \n            margin: 15px 0; \n            display: flex;\n            align-items: center;\n        }\n        .label { \n            font-weight: bold; \n            min-width: 200px;\n            display: inline-block;\n        }\n        .value {\n            border-bottom: 1px solid #666;\n            min-width: 250px;\n            padding: 5px;\n        }\n        .signature { \n            margin-top: 50px; \n            display: flex;\n            justify-content: space-between;\n        }\n        .signature-box {\n            border-top: 1px solid #000; \n            width: 200px;\n            text-align: center;\n            padding-top: 10px;\n        }\n        .documents {\n            margin-top: 30px;\n            padding: 15px;\n            background-color: #f5f5f5;\n            border-left: 4px solid #007bff;\n        }\n        .documents ul {\n            margin: 10px 0;\n        }\n        .documents li {\n            margin: 5px 0;\n        }\n    </style>\n</head>\n<body>\n    <div class=\"header\">\n        <h2>Application Form - ${scheme}</h2>\n        <p>Government of India Insurance Scheme</p>\n        <p style=\"font-size: 12px; color: #666;\">Please fill in any missing information before submission</p>\n    </div>\n    \n    <div class=\"form-group\">\n        <span class=\"label\">Applicant Name:</span>\n        <span class=\"value\">${parsedUserData.name || '______________________________'}</span>\n    </div>\n    \n    <div class=\"form-group\">\n        <span class=\"label\">Mobile Number:</span>\n        <span class=\"value\">${parsedUserData.mobile || '______________________________'}</span>\n    </div>\n    \n    <div class=\"form-group\">\n        <span class=\"label\">Business Type:</span>\n        <span class=\"value\">${parsedUserData.businessType || '______________________________'}</span>\n    </div>\n    \n    <div class=\"form-group\">\n        <span class=\"label\">Number of Employees:</span>\n        <span class=\"value\">${parsedUserData.employees || '______________________________'}</span>\n    </div>\n    \n    <div class=\"form-group\">\n        <span class=\"label\">Business Location:</span>\n        <span class=\"value\">${parsedUserData.location || '______________________________'}</span>\n    </div>\n    \n    <div class=\"form-group\">\n        <span class=\"label\">Annual Turnover:</span>\n        <span class=\"value\">${parsedUserData.turnover || '______________________________'}</span>\n    </div>\n    \n    <div class=\"form-group\">\n        <span class=\"label\">Scheme Applied For:</span>\n        <span class=\"value\">${scheme}</span>\n    </div>\n    \n    <div class=\"form-group\">\n        <span class=\"label\">Application Date:</span>\n        <span class=\"value\">${new Date().toLocaleDateString('en-IN')}</span>\n    </div>\n    \n    <div class=\"documents\">\n        <h3>📋 Required Documents Checklist:</h3>\n        <ul>\n            <li>☐ PAN Card Copy (Self-attested)</li>\n            <li>☐ Aadhar Card Copy (Self-attested)</li>\n            <li>☐ Business Registration Certificate</li>\n            <li>☐ Bank Account Statement (Last 6 months)</li>\n            <li>☐ GSTIN Certificate (if applicable)</li>\n            <li>☐ Employee List with Aadhar (if applicable)</li>\n            <li>☐ Recent Passport Size Photographs (2 copies)</li>\n            <li>☐ Business Address Proof</li>\n        </ul>\n        \n        <h4>Submission Process:</h4>\n        <ol>\n            <li>Fill in any missing information in this form</li>\n            <li>Attach all required documents</li>\n            <li>Submit to nearest ${scheme} office or authorized center</li>\n            <li>Keep acknowledgment receipt for tracking</li>\n        </ol>\n    </div>\n    \n    <div class=\"signature\">\n        <div class=\"signature-box\">\n            <p>Date: ${new Date().toLocaleDateString('en-IN')}</p>\n            <p>Applicant Signature</p>\n        </div>\n        <div class=\"signature-box\">\n            <p>Received by:</p>\n            <p>Officer Signature & Stamp</p>\n        </div>\n    </div>\n    \n    <div style=\"margin-top: 30px; font-size: 12px; color: #666; text-align: center;\">\n        <p>This form was generated by FinBuddy AI Assistant | For support: contact your nearest insurance office</p>\n    </div>\n</body>\n</html>\n`;\n\nreturn [{\n  json: {\n    pdfContent: pdfContent,\n    filename: `${scheme.replace(/\\s+/g, '_')}_application_${Date.now()}.html`,\n    response: $json.originalResponse + \"\\n\\n📄 **Your PDF application form has been generated!**\\n\\n✅ The form is pre-filled with your details\\n📋 Includes complete document checklist\\n📝 Ready for download and submission\\n\\nPlease review, print, and submit with required documents to the nearest office.\",\n    scheme: scheme,\n    userData: parsedUserData\n  }\n}];"
+      },
+      "id": "47e9cf2a-e639-48ae-9499-51f7ee10e028",
+      "name": "Generate PDF",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        704,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v17.0/YOUR_PHONE_NUMBER_ID/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "id": "d4d9228d-e9a2-460c-b723-8e16cc3c500a",
+      "name": "Send WhatsApp Message",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        704,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Convert PDF content to downloadable response\nconst pdfContent = $json.pdfContent;\nconst filename = $json.filename;\nconst response = $json.response;\n\n// Create a data URL for the HTML content that can be downloaded\nconst dataUrl = `data:text/html;charset=utf-8,${encodeURIComponent(pdfContent)}`;\n\nconst downloadMarkdown = `🔗 **Download Link:** [Open Application Form](${dataUrl})\\n\\n💡 *Right-click and Save As, or open in browser and Print to PDF.*`;\n\nreturn [{\n  json: {\n    text: `${response}\\n\\n${downloadMarkdown}`,\n    filename: filename,\n    content: pdfContent,\n    contentType: 'text/html'\n  }\n}];"
+      },
+      "id": "97cade26-fe3f-4193-8663-da3c27b7e9dc",
+      "name": "PDF to Response",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        912,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Prepare response after connecting to agent\nconst scheme = $json.scheme;\nconst phone = $json.phone;\nconst location = $json.location;\n\nreturn [{\n  json: {\n    text: $json.originalResponse + `\\n\\n✅ **Great! I've connected you with a verified ${scheme} specialist.**\\n\\n📱 **What happens next:**\\n• Agent will contact you on ${phone} within 24 hours\\n• They'll provide personalized quotes for your business in ${location}\\n• You'll get expert guidance on coverage options\\n• Fast-track application processing\\n\\n🎯 **Agent Details:**\\n👤 Name: Rajesh Kumar\\n🏢 Specialization: ${scheme}\\n⭐ Rating: 4.8/5 (200+ happy customers)\\n📞 Direct Contact: Available on WhatsApp\\n\\n💬 **For immediate assistance, you can also message the agent directly on WhatsApp.**`\n  }\n}];"
+      },
+      "id": "012cc1a2-d9fe-43a8-a8ff-848b76e52436",
+      "name": "Agent Response",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        912,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Handle regular responses (no special actions)\nconst response = $json.response || $json.text || '';\n\nreturn [{\n  json: {\n    text: response\n  }\n}];"
+      },
+      "id": "6e85aa05-e75b-4a30-82b1-c8b2762be80e",
+      "name": "Regular Response",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        704,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "path": "Delete",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1136,
+        432
+      ],
+      "id": "471d7f1a-5e3f-4767-8abb-a4ece4fcd6f1",
+      "name": "Webhook",
+      "webhookId": "13690351-23aa-4708-826b-79d18403bebe"
+    },
+    {
+      "parameters": {
+        "operation": "deleteTable",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "n8n_chat_histories",
+          "mode": "list",
+          "cachedResultName": "n8n_chat_histories"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -960,
+        432
+      ],
+      "id": "7b35d541-431f-45a7-954f-74873611e743",
+      "name": "Delete table or rows",
+      "credentials": {
+        "postgres": {
+          "id": "qWDmZLGBKkw41A18",
+          "name": "Postgres account"
         }
       }
     }
@@ -131,14 +296,20 @@
     },
     "Calculator1": {
       "ai_tool": [
-        []
+        [
+          {
+            "node": "Agent-FinSuggest",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
       ]
     },
     "Agent-FinSuggest": {
       "main": [
         [
           {
-            "node": "Respond to Chat1",
+            "node": "Action Parser",
             "type": "main",
             "index": 0
           }
@@ -166,17 +337,119 @@
           }
         ]
       ]
+    },
+    "Action Parser": {
+      "main": [
+        [
+          {
+            "node": "Route Actions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Actions": {
+      "main": [
+        [
+          {
+            "node": "Regular Response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Generate PDF",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send WhatsApp Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate PDF": {
+      "main": [
+        [
+          {
+            "node": "PDF to Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send WhatsApp Message": {
+      "main": [
+        [
+          {
+            "node": "Agent Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PDF to Response": {
+      "main": [
+        [
+          {
+            "node": "Respond to Chat1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent Response": {
+      "main": [
+        [
+          {
+            "node": "Respond to Chat1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Regular Response": {
+      "main": [
+        [
+          {
+            "node": "Respond to Chat1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Delete table or rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "77f6bb9e-ff47-4a91-9c79-467c64ff9caf",
+  "versionId": "b8225f58-e2a3-4003-938a-3356fe183c3a",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "558d88703fb65b2d0e44613bc35916258b0f0bf983c5d4730c00c424b77ca36a"
   },
-  "id": "eU1Qjo2Uxcf2u2RG",
+  "id": "Lc0DX4v23qf2yv8w",
   "tags": []
 }
